@@ -63,6 +63,17 @@ function App() {
     remainingWorkMinutes,
     remainingWorkDays,
   } = fetchContents();
+
+  const estimatedWorkTimePerDay = (() => {
+    if (remainingWorkMinutes < 0) {
+      return 0;
+    }
+    if (remainingWorkDays <= 0) {
+      return remainingWorkMinutes;
+    }
+    return Math.floor(remainingWorkMinutes / remainingWorkDays);
+  })();
+
   return (
     <>
       <div id="workTimes">
@@ -81,8 +92,7 @@ function App() {
       </div>
       <div id="estimatedWorkTimePerDay">
         <span>
-          推定必要労働時間（一日）:{" "}
-          {minutesToHhmm(Math.floor(remainingWorkMinutes / remainingWorkDays))}
+          推定必要労働時間（一日）: {minutesToHhmm(estimatedWorkTimePerDay)}
         </span>
       </div>
     </>
