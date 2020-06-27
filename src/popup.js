@@ -23,6 +23,7 @@ function fetchContents() {
   const [contents, setContents] = useState({
     remainingMinutesEachDay: [],
     actualTotalMinutes: 0,
+    requiredTotalMinutes: 0,
     remainingMinutes: 0,
     remainingWorkDays: 0,
   });
@@ -57,6 +58,7 @@ function fetchContents() {
       setContents({
         remainingMinutesEachDay,
         actualTotalMinutes,
+        requiredTotalMinutes,
         remainingMinutes,
         remainingWorkDays,
       });
@@ -80,15 +82,29 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
 } from "recharts";
 
 const WorkTimesChart = ({ data }) => (
-  <LineChart width={400} height={400} data={data}>
-    <Line type="linear" dataKey="hours" stroke="#8884d8" />
-    <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+  <LineChart width={500} height={400} data={data}>
     <XAxis dataKey="date" />
     <YAxis />
     <Tooltip />
+    <Legend />
+    <CartesianGrid stroke="#ccc" strokeDasharray="3 3" />
+    <Line
+      type="linear"
+      dataKey="ideal"
+      stroke="#82ca9d"
+      dot={false}
+      isAnimationActive={false}
+    />
+    <Line
+      type="linear"
+      dataKey="actual"
+      stroke="#8884d8"
+      isAnimationActive={false}
+    />
   </LineChart>
 );
 
@@ -96,6 +112,7 @@ function App() {
   const {
     remainingMinutesEachDay,
     actualTotalMinutes,
+    requiredTotalMinutes,
     remainingMinutes,
     remainingWorkDays,
   } = fetchContents();
@@ -110,14 +127,17 @@ function App() {
     return Math.floor(remainingMinutes / remainingWorkDays);
   })();
 
-  // const idealRemainingHours = [
-  //   ...Array(remainingMinutesEachDay.length),
-  // ].map((_, i) => (-8 / 1) * i + 160);
+  const daysInMonth = remainingMinutesEachDay.length;
+  const idealRemainingHours = (day) =>
+    (-requiredTotalMinutes / daysInMonth) * day + requiredTotalMinutes;
 
-  const data = remainingMinutesEachDay.map((min, i) => ({
-    date: String(i + 1),
-    hours: minutesToHours(min, 2),
-  }));
+  const data = [requiredTotalMinutes, ...remainingMinutesEachDay].map(
+    (min, i) => ({
+      date: String(i),
+      actual: minutesToHours(min),
+      ideal: minutesToHours(idealRemainingHours(i)),
+    })
+  );
 
   return (
     <>
@@ -128,7 +148,7 @@ function App() {
         <span>総労働時間: {minutesToHhmm(actualTotalMinutes)}</span>
       </div>
       <div id="remainingWorkTime">
-        <span>月規定残: {minutesToHhmm(remainingMinutes)}</span>
+        <span>月規定労働時間の残り: {minutesToHhmm(remainingMinutes)}</span>
       </div>
       <div id="requiredMinutesPerDay">
         <span>必要労働時間/日: {minutesToHhmm(requiredMinutesPerDay)}</span>
