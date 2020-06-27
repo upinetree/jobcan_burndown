@@ -5,7 +5,7 @@ chrome.runtime.onInstalled.addListener(function () {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({
             pageUrl: {
-              urlEquals: "https://ssl.jobcan.jp/employee/attendance",
+              urlMatches: "ssl.jobcan.jp/employee/attendance",
             },
           }),
         ],
