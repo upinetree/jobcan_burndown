@@ -1,3 +1,6 @@
 {
-  "presets": ["@babel/preset-react"]
+  "presets": [
+    ["@babel/preset-env", { "targets": "since 2017-06" }],
+    "@babel/preset-react"
+  ]
 }

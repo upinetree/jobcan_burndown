@@ -16,7 +16,7 @@ function minutesToHhmm(minutes) {
 
 function fetchContents() {
   const [contents, setContents] = useState({
-    workTimesInMinutes: [],
+    remainingWorkMinutesEachDays: [],
     totalMinutes: 0,
     remainingWorkMinutes: 0,
     remainingWorkDays: 0,
@@ -33,12 +33,23 @@ function fetchContents() {
 
       const workTimesInMinutes = workTimeStrings.map(hhmmToMinutes);
       const totalMinutes = workTimesInMinutes.pop();
-      const remainingWorkMinutes =
-        hhmmToMinutes(requiredWorkTimeString) - totalMinutes;
+      const requiredWorkMinutes = hhmmToMinutes(requiredWorkTimeString);
+      const remainingWorkMinutes = requiredWorkMinutes - totalMinutes;
       const remainingWorkDays = requiredWorkDays - workDays;
 
+      const accumuratedWorkMinutesEachDays = workTimesInMinutes.reduce(
+        (accumurator, current, i) => {
+          accumurator[i] = (accumurator[i - 1] || 0) + current;
+          return accumurator;
+        },
+        []
+      );
+      const remainingWorkMinutesEachDays = accumuratedWorkMinutesEachDays.map(
+        (min) => requiredWorkMinutes - min
+      );
+
       setContents({
-        workTimesInMinutes,
+        remainingWorkMinutesEachDays,
         totalMinutes,
         remainingWorkMinutes,
         remainingWorkDays,
@@ -51,14 +62,35 @@ function fetchContents() {
       },
       handleContentsResult
     );
-  });
+  }, []);
 
   return contents;
 }
 
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+
+const WorkTimesChart = ({ data }) => (
+  <LineChart width={400} height={400} data={data}>
+    <Line type="linear" dataKey="hours" stroke="#8884d8" />
+    <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+    <XAxis dataKey="name" />
+    <YAxis />
+    <Tooltip />
+  </LineChart>
+);
+
 function App() {
+  console.log("rendered");
+
   const {
-    workTimesInMinutes,
+    remainingWorkMinutesEachDays,
     totalMinutes,
     remainingWorkMinutes,
     remainingWorkDays,
@@ -74,15 +106,15 @@ function App() {
     return Math.floor(remainingWorkMinutes / remainingWorkDays);
   })();
 
+  const data = remainingWorkMinutesEachDays.map((min, i) => ({
+    name: String(i),
+    hours: Math.floor((min / 60) * 100) / 100,
+  }));
+
   return (
     <>
       <div id="workTimes">
-        <span>
-          労働時間:{" "}
-          {workTimesInMinutes.map((min, i) => (
-            <li key={i}>{min}</li>
-          ))}
-        </span>
+        <WorkTimesChart data={data} />
       </div>
       <div id="totalWorkTime">
         <span>総労働時間: {minutesToHhmm(totalMinutes)}</span>
@@ -101,9 +133,3 @@ function App() {
 
 const mountNode = document.getElementById("app");
 ReactDOM.render(<App />, mountNode);
-
-//------------
-
-/* TODO:
-- 勤務時間からグラフ書く
-*/
