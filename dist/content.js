@@ -3,7 +3,7 @@ function getWorkTimes() {
   const $requiredWorkTime = document
     .evaluate("//tr[contains(., '月規定労働時間')]/td", document)
     .iterateNext();
-  const $workDays = document
+  const $actualWorkDays = document
     .evaluate("//tr[contains(., '実働日数')]/td", document)
     .iterateNext();
   const $requiredWorkDays = document
@@ -14,15 +14,15 @@ function getWorkTimes() {
     return;
   }
 
-  const workTimes = Array.from($rows, (row) => row.cells[5].innerText);
-  workTimes.shift(); // header を除く
+  const workTimeEachDay = Array.from($rows, (row) => row.cells[5].innerText);
+  workTimeEachDay.shift(); // header を除く
   const requiredWorkTime = $requiredWorkTime.innerText;
-  const workDays = Number($workDays.innerText);
+  const actualWorkDays = Number($actualWorkDays.innerText);
   const requiredWorkDays = Number(
     $requiredWorkDays.innerText.replace(/ 日/, "")
   );
 
-  return [workTimes, requiredWorkTime, workDays, requiredWorkDays];
+  return [workTimeEachDay, requiredWorkTime, actualWorkDays, requiredWorkDays];
 }
 
 getWorkTimes();

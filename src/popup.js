@@ -14,44 +14,50 @@ function minutesToHhmm(minutes) {
   return `${hours}:${remainders}`;
 }
 
+function minutesToHours(minutes, decimalPlace) {
+  decimalPlace = decimalPlace || 2;
+  return +(minutes / 60).toFixed(decimalPlace);
+}
+
 function fetchContents() {
   const [contents, setContents] = useState({
-    remainingWorkMinutesEachDays: [],
-    totalMinutes: 0,
-    remainingWorkMinutes: 0,
+    remainingMinutesEachDay: [],
+    actualTotalMinutes: 0,
+    remainingMinutes: 0,
     remainingWorkDays: 0,
   });
 
   useEffect(() => {
     function handleContentsResult(result) {
       const [
-        workTimeStrings,
-        requiredWorkTimeString,
-        workDays,
+        workTimeEachDay,
+        requiredWorkTime,
+        actualWorkDays,
         requiredWorkDays,
       ] = result[0];
 
-      const workTimesInMinutes = workTimeStrings.map(hhmmToMinutes);
-      const totalMinutes = workTimesInMinutes.pop();
-      const requiredWorkMinutes = hhmmToMinutes(requiredWorkTimeString);
-      const remainingWorkMinutes = requiredWorkMinutes - totalMinutes;
-      const remainingWorkDays = requiredWorkDays - workDays;
+      const actualMinutesEachDay = workTimeEachDay.map(hhmmToMinutes);
+      const actualTotalMinutes = actualMinutesEachDay.pop();
+      const requiredTotalMinutes = hhmmToMinutes(requiredWorkTime);
+      const remainingMinutes = requiredTotalMinutes - actualTotalMinutes;
+      const remainingWorkDays = requiredWorkDays - actualWorkDays;
 
-      const accumuratedWorkMinutesEachDays = workTimesInMinutes.reduce(
+      const accumuratedMinutesEachDays = actualMinutesEachDay.reduce(
         (accumurator, current, i) => {
           accumurator[i] = (accumurator[i - 1] || 0) + current;
           return accumurator;
         },
         []
       );
-      const remainingWorkMinutesEachDays = accumuratedWorkMinutesEachDays.map(
-        (min) => requiredWorkMinutes - min
+
+      const remainingMinutesEachDay = accumuratedMinutesEachDays.map(
+        (min) => requiredTotalMinutes - min
       );
 
       setContents({
-        remainingWorkMinutesEachDays,
-        totalMinutes,
-        remainingWorkMinutes,
+        remainingMinutesEachDay,
+        actualTotalMinutes,
+        remainingMinutes,
         remainingWorkDays,
       });
     }
@@ -80,35 +86,37 @@ const WorkTimesChart = ({ data }) => (
   <LineChart width={400} height={400} data={data}>
     <Line type="linear" dataKey="hours" stroke="#8884d8" />
     <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-    <XAxis dataKey="name" />
+    <XAxis dataKey="date" />
     <YAxis />
     <Tooltip />
   </LineChart>
 );
 
 function App() {
-  console.log("rendered");
-
   const {
-    remainingWorkMinutesEachDays,
-    totalMinutes,
-    remainingWorkMinutes,
+    remainingMinutesEachDay,
+    actualTotalMinutes,
+    remainingMinutes,
     remainingWorkDays,
   } = fetchContents();
 
-  const estimatedWorkTimePerDay = (() => {
-    if (remainingWorkMinutes < 0) {
+  const requiredMinutesPerDay = (() => {
+    if (remainingMinutes < 0) {
       return 0;
     }
     if (remainingWorkDays <= 0) {
-      return remainingWorkMinutes;
+      return remainingMinutes;
     }
-    return Math.floor(remainingWorkMinutes / remainingWorkDays);
+    return Math.floor(remainingMinutes / remainingWorkDays);
   })();
 
-  const data = remainingWorkMinutesEachDays.map((min, i) => ({
-    name: String(i),
-    hours: Math.floor((min / 60) * 100) / 100,
+  // const idealRemainingHours = [
+  //   ...Array(remainingMinutesEachDay.length),
+  // ].map((_, i) => (-8 / 1) * i + 160);
+
+  const data = remainingMinutesEachDay.map((min, i) => ({
+    date: String(i + 1),
+    hours: minutesToHours(min, 2),
   }));
 
   return (
@@ -117,15 +125,13 @@ function App() {
         <WorkTimesChart data={data} />
       </div>
       <div id="totalWorkTime">
-        <span>総労働時間: {minutesToHhmm(totalMinutes)}</span>
+        <span>総労働時間: {minutesToHhmm(actualTotalMinutes)}</span>
       </div>
       <div id="remainingWorkTime">
-        <span>残月規定: {minutesToHhmm(remainingWorkMinutes)}</span>
+        <span>月規定残: {minutesToHhmm(remainingMinutes)}</span>
       </div>
-      <div id="estimatedWorkTimePerDay">
-        <span>
-          推定必要労働時間（一日）: {minutesToHhmm(estimatedWorkTimePerDay)}
-        </span>
+      <div id="requiredMinutesPerDay">
+        <span>必要労働時間/日: {minutesToHhmm(requiredMinutesPerDay)}</span>
       </div>
     </>
   );
