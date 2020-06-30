@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "parcel build src/popup.js -d dist/build --public-url .",
-    "watch": "parcel watch src/popup.js -d dist/build --public-url . --no-hmr"
+    "build": "parcel build src/* -d dist/build --public-url .",
+    "watch": "parcel watch src/* -d dist/build --public-url . --no-hmr"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
