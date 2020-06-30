@@ -22,7 +22,7 @@ function minutesToHours(minutes, decimalPlace) {
 }
 
 const WorkTimesChart = ({ data }) => (
-  <LineChart width={500} height={400} data={data}>
+  <LineChart width={700} height={400} data={data}>
     <XAxis dataKey="date" />
     <YAxis />
     <Tooltip />
@@ -72,14 +72,14 @@ function buildBurndownData(actualMinutesEachDay, requiredTotalMinutes) {
   return data;
 }
 
-function Burndown() {
+function Burndown({ domHandler }) {
   const {
     actualMinutesEachDay,
     actualTotalMinutes,
     requiredTotalMinutes,
     remainingMinutes,
     remainingWorkDays,
-  } = useWorkingTimeDomState();
+  } = useWorkingTimeDomState(domHandler);
 
   const data = buildBurndownData(actualMinutesEachDay, requiredTotalMinutes);
 

@@ -1,4 +1,8 @@
-function getWorkTimes() {
+import React from "react";
+import ReactDOM from "react-dom";
+import Burndown from "./burndown";
+
+function getWorkingTimeDomContents() {
   const $rows = document.querySelectorAll("table.note>tbody tr");
   const $requiredWorkTime = document
     .evaluate("//tr[contains(., '月規定労働時間')]/td", document)
@@ -25,4 +29,8 @@ function getWorkTimes() {
   return [workTimeEachDay, requiredWorkTime, actualWorkDays, requiredWorkDays];
 }
 
-getWorkTimes();
+const mountNode = document.createElement("div");
+const entryNode = document.querySelector(".infotpl ~ [clear=all]");
+entryNode.parentNode.insertBefore(mountNode, entryNode.nextSibling);
+
+ReactDOM.render(<Burndown domHandler={getWorkingTimeDomContents} />, mountNode);

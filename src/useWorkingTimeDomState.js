@@ -7,7 +7,7 @@ function hhmmToMinutes(hhmm) {
   return minutes;
 }
 
-function useWorkingTimeDomState() {
+function useWorkingTimeDomState(domHandler) {
   const [contents, setContents] = useState({
     actualMinutesEachDay: [],
     actualTotalMinutes: 0,
@@ -23,7 +23,7 @@ function useWorkingTimeDomState() {
         requiredWorkTime,
         actualWorkDays,
         requiredWorkDays,
-      ] = result[0];
+      ] = result;
 
       const actualMinutesEachDay = workTimeEachDay.map(hhmmToMinutes);
       const actualTotalMinutes = actualMinutesEachDay.pop();
@@ -40,12 +40,7 @@ function useWorkingTimeDomState() {
       });
     }
 
-    chrome.tabs.executeScript(
-      {
-        file: "content.js",
-      },
-      handleContentsResult
-    );
+    handleContentsResult(domHandler());
   }, []);
 
   return contents;
