@@ -1,4 +1,13 @@
 import React from "react";
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+} from "recharts";
 import useWorkingTimeDomState from "./useWorkingTimeDomState";
 
 function minutesToHhmm(minutes) {
@@ -11,16 +20,6 @@ function minutesToHours(minutes, decimalPlace) {
   decimalPlace = decimalPlace || 2;
   return +(minutes / 60).toFixed(decimalPlace);
 }
-
-import {
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-} from "recharts";
 
 const WorkTimesChart = ({ data }) => (
   <LineChart width={500} height={400} data={data}>
@@ -45,26 +44,20 @@ const WorkTimesChart = ({ data }) => (
   </LineChart>
 );
 
-function Burndown() {
-  const {
-    remainingMinutesEachDay,
-    actualTotalMinutes,
-    requiredTotalMinutes,
-    remainingMinutes,
-    remainingWorkDays,
-  } = useWorkingTimeDomState();
+function buildBurndownData(actualMinutesEachDay, requiredTotalMinutes) {
+  const accumuratedMinutesEachDays = actualMinutesEachDay.reduce(
+    (accumurator, current, i) => {
+      accumurator[i] = (accumurator[i - 1] || 0) + current;
+      return accumurator;
+    },
+    []
+  );
 
-  const requiredMinutesPerDay = (() => {
-    if (remainingMinutes < 0) {
-      return 0;
-    }
-    if (remainingWorkDays <= 0) {
-      return remainingMinutes;
-    }
-    return Math.floor(remainingMinutes / remainingWorkDays);
-  })();
+  const remainingMinutesEachDay = accumuratedMinutesEachDays.map(
+    (min) => requiredTotalMinutes - min
+  );
 
-  const daysInMonth = remainingMinutesEachDay.length;
+  const daysInMonth = actualMinutesEachDay.length;
   const idealRemainingHours = (day) =>
     (-requiredTotalMinutes / daysInMonth) * day + requiredTotalMinutes;
 
@@ -75,6 +68,30 @@ function Burndown() {
       ideal: minutesToHours(idealRemainingHours(i)),
     })
   );
+
+  return data;
+}
+
+function Burndown() {
+  const {
+    actualMinutesEachDay,
+    actualTotalMinutes,
+    requiredTotalMinutes,
+    remainingMinutes,
+    remainingWorkDays,
+  } = useWorkingTimeDomState();
+
+  const data = buildBurndownData(actualMinutesEachDay, requiredTotalMinutes);
+
+  const requiredMinutesPerDay = (() => {
+    if (remainingMinutes < 0) {
+      return 0;
+    }
+    if (remainingWorkDays <= 0) {
+      return remainingMinutes;
+    }
+    return Math.floor(remainingMinutes / remainingWorkDays);
+  })();
 
   return (
     <>

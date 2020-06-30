@@ -9,7 +9,7 @@ function hhmmToMinutes(hhmm) {
 
 function useWorkingTimeDomState() {
   const [contents, setContents] = useState({
-    remainingMinutesEachDay: [],
+    actualMinutesEachDay: [],
     actualTotalMinutes: 0,
     requiredTotalMinutes: 0,
     remainingMinutes: 0,
@@ -31,20 +31,8 @@ function useWorkingTimeDomState() {
       const remainingMinutes = requiredTotalMinutes - actualTotalMinutes;
       const remainingWorkDays = requiredWorkDays - actualWorkDays;
 
-      const accumuratedMinutesEachDays = actualMinutesEachDay.reduce(
-        (accumurator, current, i) => {
-          accumurator[i] = (accumurator[i - 1] || 0) + current;
-          return accumurator;
-        },
-        []
-      );
-
-      const remainingMinutesEachDay = accumuratedMinutesEachDays.map(
-        (min) => requiredTotalMinutes - min
-      );
-
       setContents({
-        remainingMinutesEachDay,
+        actualMinutesEachDay,
         actualTotalMinutes,
         requiredTotalMinutes,
         remainingMinutes,
