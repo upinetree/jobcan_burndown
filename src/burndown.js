@@ -78,16 +78,16 @@ function Burndown() {
 
   return (
     <>
-      <div id="workTimes">
+      <div>
         <WorkTimesChart data={data} />
       </div>
-      <div id="totalWorkTime">
+      <div>
         <span>総労働時間: {minutesToHhmm(actualTotalMinutes)}</span>
       </div>
-      <div id="remainingWorkTime">
+      <div>
         <span>月規定労働時間の残り: {minutesToHhmm(remainingMinutes)}</span>
       </div>
-      <div id="requiredMinutesPerDay">
+      <div>
         <span>必要労働時間/日: {minutesToHhmm(requiredMinutesPerDay)}</span>
       </div>
     </>
