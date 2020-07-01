@@ -22,11 +22,21 @@ function minutesToHours(minutes, decimalPlace) {
 }
 
 const WorkTimesChart = ({ data }) => (
-  <LineChart width={700} height={400} data={data}>
+  <LineChart
+    width={700}
+    height={400}
+    margin={{ top: 25, right: 30, left: 20, bottom: 5 }}
+    data={data}
+  >
     <XAxis dataKey="date" />
-    <YAxis />
+    <YAxis
+      domain={[
+        (dataMin) => (dataMin < 0 ? Math.floor(dataMin / 10) * 10 : 0),
+        "dataMax",
+      ]}
+    />
     <Tooltip />
-    <Legend />
+    <Legend verticalAlign="top" wrapperStyle={{ top: 0 }} />
     <CartesianGrid stroke="#ccc" strokeDasharray="3 3" />
     <Line
       type="linear"
@@ -94,20 +104,32 @@ function Burndown({ domHandler }) {
   })();
 
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: 10,
+      }}
+    >
       <div>
         <WorkTimesChart data={data} />
       </div>
-      <div>
-        <span>総労働時間: {minutesToHhmm(actualTotalMinutes)}</span>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "2fr 1fr",
+          gridGap: ".5rem",
+        }}
+      >
+        <div>総労働時間:</div>
+        <div>{minutesToHhmm(actualTotalMinutes)}</div>
+        <div>月規定労働時間の残り:</div>
+        <div>{minutesToHhmm(remainingMinutes)}</div>
+        <div>必要労働時間/日:</div>
+        <div>{minutesToHhmm(requiredMinutesPerDay)}</div>
       </div>
-      <div>
-        <span>月規定労働時間の残り: {minutesToHhmm(remainingMinutes)}</span>
-      </div>
-      <div>
-        <span>必要労働時間/日: {minutesToHhmm(requiredMinutesPerDay)}</span>
-      </div>
-    </>
+    </div>
   );
 }
 
