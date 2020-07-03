@@ -1,8 +1,8 @@
 {
   "name": "Jobcan Burndown",
   "version": "1.0",
-  "description": "Build an Extension!",
-  "permissions": ["activeTab", "declarativeContent", "storage"],
+  "description": "バーンダウンチャートをジョブカン出勤簿画面に埋め込みます",
+  "permissions": [],
   "content_scripts": [
     {
       "matches": ["https://ssl.jobcan.jp/employee/attendance*"],
